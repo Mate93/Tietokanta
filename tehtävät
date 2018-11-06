@@ -1,0 +1,15 @@
+teht 1
+SELECT * FROM `department` WHERE 1
+
+teht 2
+Select FName,LName
+From employee
+
+teht3
+SELECT FName,LName,DName
+From employee, department
+
+teht4 
+SELECT LName
+FROM employee, department
+WHERE department.Manager=employee.Ssn
