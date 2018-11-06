@@ -13,3 +13,37 @@ teht4
 SELECT LName
 FROM employee, department
 WHERE department.Manager=employee.Ssn
+
+teht5
+SELECT COUNT(*)
+FROM department,employee
+
+teht7
+SELECT
+ s.lname Supervisor, department *
+FROM
+ employee e,
+ employee s
+WHERE
+ e.supervisor = s.ssn;
+ 
+ teht8
+ SELECT * 
+FROM location 
+WHERE DName= 'Tampere'
+
+teht9 
+SELECT SUM(Hours)
+FROM works_on;
+
+teht 10
+SELECT SUM(Hours)
+FROM works_on;
+
+teht 11
+SELECT Bdate,FName
+	From employee order by Bdate desc
+  
+  teht 13
+  SELECT MIN(Bdate)
+  FROM employee 
