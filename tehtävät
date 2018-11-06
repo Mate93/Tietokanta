@@ -15,8 +15,8 @@ FROM employee, department
 WHERE department.Manager=employee.Ssn
 
 teht5
-SELECT COUNT(*)
-FROM department,employee
+SELECT COUNT(FName) AS lkm
+FROM employee
 
 teht7
 SELECT
