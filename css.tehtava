@@ -1,0 +1,131 @@
+Teht 1
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="fruits">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li data-foodtype="squishy">Orange</li>
+    <li>Pear</li>
+    <li>Kiwi</li>
+    <li id="berry">Strawberry</li>
+</ul>
+<link rel="stylesheet" type="text/css" href="css.teht1.css">
+</body>
+<script>
+   let li =document.getElementById("berry");
+    li.style.backgroundColor ="blue";
+    console.log(li);
+    console.log("I found the berry" + li.innerHTML);
+
+
+</script>
+</html>
+
+Teht 2
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="fruits">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li data-foodtype="squishy">Orange</li>
+    <li>Pear</li>
+    <li>Kiwi</li>
+    <li id="berry">Strawberry</li>
+</ul>
+</body>
+<script>
+    let oranssi =document.querySelector("[data-foodtype = squishy]");
+    console.log(oranssi);
+    oranssi.style.backgroundColor = "orange";
+    console.log("I found the fruit:" + oranssi.innerHTML);
+
+</script>
+</html>
+
+Teht 3.1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="fruits">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li data-foodtype="squishy">Orange</li>
+    <li>Pear</li>
+    <li>Kiwi</li>
+    <li id="berry">Strawberry</li>
+</ul>
+<script>
+    let kaikki = document.getElementsByTagName("li");
+    console.log(kaikki);
+
+
+</script>
+</body>
+</html>
+
+Teht 3.2 ei toiminut kokonaan
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="fruits">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li data-foodtype="squishy">Orange</li>
+    <li>Pear</li>
+    <li>Kiwi</li>
+    <li id="berry">Strawberry</li>
+</ul>
+</body>
+<script>
+
+    const y = document.getElementsByTagName("li");
+
+    for (let i = 0; i < y.length; i++) {
+        console.log(y);
+    }
+</script>
+</html>
+
+Teht 4.1
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ul class="fruits">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li data-foodtype="squishy">Orange</li>
+    <li>Pear</li>
+    <li>Kiwi</li>
+    <li id="berry">Strawberry</li>
+</ul>
+</body>
+<script>
+    var matches = document.querySelectorAll("li");
+    console.log(matches);
+
+</script>
+</html>
