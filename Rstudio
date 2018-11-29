@@ -3,6 +3,12 @@
 3.which.max(hp) car number 31 and if you check from mtcars list its Maserati Bora
 4. which(cyl==4) Antaa autojen numerot järjestyksessä eli näin [1]  3  8  9 18 19 20 21 26 27 28 32
 Eli yhteensä 11 autoa ja niitten nimet saa mtcars taulukosta.
+5. pie(table(mtcars$cyl), col=grey.colors(3), main="Nuumerot"). Näyttää pie chart listan cylinderistä.
+6. Antaa arvot hp eli hevosvoima ja pmg:stä ja data=mtcars tulostaa kaikki autot listalle Maiilit per hp. Eli englanniksi
+Does the miles per horsepower depend on whether it's an automatic or manual transmission in the mtcars dataset
+7. boxplot(mpg~hp,data=mtcars, main="mtcars", 
++         xlab="hp", ylab="Mailit") . Tämä näyttää mailit per hp datassa.
+
 
 
                                                                                                              
