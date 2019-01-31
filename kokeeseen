@@ -1,0 +1,863 @@
+Tiedonhallinta 1 22.10.2018
+
+1. Luodaan kontaktitaulu
+- tallennetaan: etunimi, sukunimi, puhelin
+
+CREATE TABLE Kontakti(
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15)
+);
+
+
+2. Syötetään dataa tauluun
+
+INSERT INTO Kontakti
+VALUES(
+ 'Matti',
+ 'Tatti',
+ '+358 40 1234567'
+);
+
+3. Syötetään useampi rivi kerrallaan
+
+INSERT INTO Kontakti
+VALUES(
+ 'Maija',
+ 'Tatti',
+ '+358 40 9873456'
+),(
+ 'Taavi',
+ 'Tatti',
+ ''
+);
+
+4. Haetaan dataa
+
+SELECT
+ *
+FROM
+ Kontakti;
+
+5. Muotoillaan kysely
+
+SELECT
+ sukunimi,
+ etunimi,
+ puhelin
+FROM
+ Kontakti
+WHERE
+ etunimi = 'Matti';
+
+SELECT
+ sukunimi,
+ etunimi,
+ puhelin
+FROM
+ Kontakti
+WHERE
+ etunimi LIKE 'Ma%';
+
+6. Päivitetään tietoja
+
+UPDATE Kontakti
+ SET etunimi = 'Pekka'
+ WHERE etunimi = 'Matti';
+
+7 Poistetaan tietoja
+
+DELETE FROM Kontakti
+ WHERE etunimi = 'Pekka';
+
+
+
+Tiedonhallinta 2 23.10.2018
+
+1. Lisätään sarakkeita (attribuutteja) tauluun
+
+- alkuperäinen taulu:
+CREATE TABLE Kontakti(
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15)
+);
+
+Tapa 1: tuhotaan taulu ja luodaan se uudestaan lisättyjen sarakkeiden kanssa
+
+DROP TABLE Kontakti;
+
+CREATE TABLE Kontakti(
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite CHAR(100)
+);
+
+Tapa 2: lisätään sarakkeita olemassa olevaan tauluun
+
+ALTER TABLE Kontakti
+ ADD osoite CHAR(100);
+
+
+2. Lisätään sarake, jonka avulla kukin rivi voidaan tunnistaa ainutkertaisesti
+
+- Ainutkertainen arvo: esiintyy kussakin sarakkeessa vain kerran
+
+- Jos lisätään sarake ainutkertaisilla arvoilla, niin taulussa ei saa olla ennestään kuin enintään yksi rivi
+
+DROP TABLE Kontakti;
+
+CREATE TABLE Kontakti(
+ id INT UNIQUE,
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite CHAR(100)
+);
+
+INSERT INTO Kontakti
+VALUES(
+ 1,
+ 'Maija',
+ 'Tatti',
+ '+358 40 9873456',
+ 'Umpikuja 1'
+),(
+ 2,
+ 'Taavi',
+ 'Tatti',
+ '',
+ 'Umpikuja 1'
+);
+
+CREATE TABLE Osoite(
+ id INT UNIQUE NOT NULL,
+ katu CHAR(20),
+ pno CHAR(7),
+ kunta CHAR(20)
+);
+
+INSERT INTO Osoite
+VALUES(
+ 100,
+ 'Umpikuja 1',
+ '00100',
+ 'Helsinki'
+);
+
+3. Luodaan taulujen välille relaatio, ts. kytketään ne yhteen nimettyjen sarakkeiden arvojen avulla
+
+- Poistetaan Kontakti-taulu
+
+- Luodaan se uudestaan siten, että osoite-sarake muutetaan datatyypiksi INT (= sama tyyppi, kuin Osoite-taulun tunnistava sarake)
+
+DROP TABLE Kontakti;
+
+CREATE TABLE Kontakti(
+ id INT UNIQUE,
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite INT
+);
+
+- Syötetään Kontakti-tauluun data siten, että osoite-sarakkeen arvo vastaa Osoite-taulun halutun osoite-rivin tunnistetta:
+
+INSERT INTO Kontakti
+VALUES(
+ 1,
+ 'Maija',
+ 'Tatti',
+ '+358 40 9873456',
+ 100
+),(
+ 2,
+ 'Taavi',
+ 'Tatti',
+ '',
+ 100
+);
+
+4. Tehdään kysely, jossa näytetään Kontaktit ja heidän Osoitteensa = kytketään Kontakti- ja Osoite-taulut relaatiolla yhteen
+
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti,
+ Osoite
+WHERE
+ Kontakti.osoite = Osoite.id;
+
+- Lisätään uusi rivi Osoite-tauluun
+
+INSERT INTO Osoite
+VALUES(
+ 101,
+ 'Kiertotie 2',
+ '00001',
+ 'Kittilä'
+);
+
+- Relaatiot tulee aina muodostaa seuraavan käsiteparin mukaisesti:
+- relaatiossa sovellettava sarake = AVAIN-SARAKE (KEY COLUMN)
+- tunnistava sarake on pääavain = (PRIMARY KEY; PK)
+- viittaava sarake on viite-/vierasavain = (FOREIGN KEY; FK)
+
+Siis: kytkennät tehdään periaatteella PK-FK
+
+===
+Lukumääräsuhteet (toimii vain binäärisille relaatioille = kahden taulun välillä):
+yhden suhde yhteen (1:1): PK (UNIQUE) - FK (UNIQUE)
+yhden suhde moneen (1:N): PK (UNIQUE) - FK (not UNIQUE)
+monen suhde yhteen (N:1): FK (not UNIQUE) - PK (UNIQUE) 
+monen suhde moneen (N:M); käytetään liitostaulua, jossa on viiteavainpari liitettävien taulujen perusavaimiin: PK1 - FK1 ja FK2 - PK2
+ 
+===
+Esimerkki monen suhde moneen-relaatiosta: kontaktilla voi olla useampia osoitteita
+
+Tarvittava liitostaulu:
+CREATE TABLE Osoite_Kontakti(
+ Osoite INT,
+ Kontakti INT
+);
+
+INSERT INTO Osoite_Kontakti
+VALUES(
+ 100,
+ 1
+),(
+ 100,
+ 2
+),(
+ 101,
+ 2
+);
+
+Monen suhde moneen kysely:
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Osoite,
+ Kontakti,
+ Osoite_Kontakti
+WHERE
+ Osoite_Kontakti.osoite = Osoite.id AND
+ Osoite_Kontakti.kontakti = Kontakti.id;
+
+
+
+Tiedonhallinta 3 24.10.2018
+
+1. Tietokannan mallintaminen
+- käytettävä ohjelmisto: https://erdplus.com
+- Entity-relationship (ER) -mallinnus:
+  - Chenin notaatio
+  - Crow's foot notaatio
+
+2. Rekursiivinen relaatio = taulu on relaatiossa itsensä kanssa
+- kahta (tai useampaa) samansisältöistä ja -rakenteista taulua (entiteettiä) ei saa olla tietokannassa
+
+3. Lisätään Kontakti-tauluun rekursiot
+
+ALTER TABLE Kontakti
+ ADD isa INT;
+ALTER TABLE Kontakti
+ ADD aiti INT;
+
+4. Päivitetään tietueen 2 "aiti"-sarakkeen arvoksi 1, eli tietueen 1 kontakti on tietueen 2 kontaktin äiti.
+
+UPDATE Kontakti
+ SET aiti = 1
+  WHERE id = 2;
+
+5. Rekursiiviset kyselyt
+- kukin kyselyyn liitetty taulu voi osallistua useamman kerran, mutta tällöin on käytettävä ns. aliasiointia (ALIAS)
+
+- haetaan taulusta Kontakti kaikki äidit:
+SELECT
+ aiti.etunimi,
+ aiti.sukunimi
+FROM
+ Kontakti as lapsi,
+ Kontakti as aiti
+WHERE
+ lapsi.aiti = aiti.id;
+
+- lisätään jo tallennetulle äidille äiti:
+INSERT INTO Kontakti
+VALUES(
+ 3,
+ 'Emma',
+ 'Patti',
+ '08 2342341',
+ NULL,
+ NULL,
+ NULL
+);
+
+UPDATE Kontakti
+ SET aiti = 3
+  WHERE id = 1;
+
+- haetaan taulusta Kontakti kaikki äidit ja lapset:
+SELECT
+ aiti.etunimi 'Äidin etunimi',
+ aiti.sukunimi 'Äidin sukunimi',
+ lapsi.etunimi 'Lapsen etunimi',
+ lapsi.sukunimi 'Lapsen sukunimi'
+FROM
+ Kontakti as lapsi,
+ Kontakti as aiti
+WHERE
+ lapsi.aiti = aiti.id;
+
+- haetaan taulusta Kontakti kaikki äidinäidit:
+SELECT
+ isoaiti.etunimi 'Isoäidin etunimi',
+ isoaiti.sukunimi 'Isoäidin sukunimi'
+FROM
+ Kontakti as lapsi,
+ Kontakti as aiti,
+ Kontakti as isoaiti
+WHERE
+ lapsi.aiti = aiti.id AND
+ aiti.aiti = isoaiti.id;
+
+
+Tiedonhallinta 4 30.10.2018
+
+1. Taulujen väliset liitännät (JOINS):
+- INNER JOIN
+-- mukaan otetaan vain ne monikot, joiden osalta WHERE:ssa määritellyt ehdot toteutuvat
+
+Esimerkkikysely = versio INNER JOIN:sta:
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Osoite,
+ Kontakti,
+ Osoite_Kontakti
+WHERE
+ Osoite_Kontakti.osoite = Osoite.id AND
+ Osoite_Kontakti.kontakti = Kontakti.id;
+
+Versio 2 käyttämällä INNER JOIN-määritystä nimenomaisesti:
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti
+  INNER JOIN Osoite_Kontakti 
+   ON Osoite_Kontakti.kontakti = Kontakti.id
+  INNER JOIN Osoite
+   ON Osoite_Kontakti.osoite = Osoite.id;
+
+- OUTER JOIN
+-- otetaan kaikki ehdot täyttävät monikot ja niiden lisäksi ne monikot, jotka ovat määritellysti ehtojen ulkopuolella
+-- suunta ratkaisee: 
+--- LEFT JOIN luetaan alkaen vasemmalta
+--- RIGHT JOIN luetaan alkaen oikealta
+--- FULL JOIN luetaan molemmista suunnista
+
+- Todistamista varten lisätään tauluihin Kontakti ja Osoite uudet rivit ilman relaatioita:
+
+INSERT INTO Kontakti
+VALUES(
+ 10,
+ 'Jorma',
+ 'Jortikka',
+ NULL,
+ NULL,
+ NULL,
+ NULL
+);
+
+INSERT INTO Osoite
+VALUES(
+ 200,
+ 'Mannerheimintie 200',
+ NULL,
+ NULL
+);
+
+- Otetaan mukaan myös kontaktit, joille ei ole osoitetta:
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti
+  LEFT JOIN Osoite_Kontakti 
+   ON Osoite_Kontakti.kontakti = Kontakti.id
+  LEFT JOIN Osoite
+   ON Osoite_Kontakti.osoite = Osoite.id;
+
+- Otetaan mukaan myös osoitteet, joille ei ole kontaktia:
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti
+  RIGHT JOIN Osoite_Kontakti 
+   ON Osoite_Kontakti.kontakti = Kontakti.id
+  RIGHT JOIN Osoite
+   ON Osoite_Kontakti.osoite = Osoite.id;
+
+- Otetaan mukaan sekä ne kontaktit, joilla ei ole osoitetta, että ne osoitteet, joihin ei ole osoitettu yhtään kontaktia (FULL JOIN)
+-- MySQL ja MariaDB eivät tunnista FULL JOIN:ia, joten se pitää toteuttaa LEFT ja RIGHT JOIN:in UNION:ina.
+
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti
+  LEFT JOIN Osoite_Kontakti 
+   ON Osoite_Kontakti.kontakti = Kontakti.id
+  LEFT JOIN Osoite
+   ON Osoite_Kontakti.osoite = Osoite.id
+UNION
+SELECT
+ Kontakti.etunimi,
+ Kontakti.sukunimi,
+ Osoite.katu
+FROM
+ Kontakti
+  RIGHT JOIN Osoite_Kontakti 
+   ON Osoite_Kontakti.kontakti = Kontakti.id
+  RIGHT JOIN Osoite
+   ON Osoite_Kontakti.osoite = Osoite.id;
+
+===
+Attribuuttien ominaisuudet:
+- Nimenomainen (eksplisiittinen) = tallennetut arvot
+- Näennäinen (virtuaalinen) = arvot, joita ei ole tallennettu, mutta jotka voidaan tuottaa kyselyn/laskennan tuloksena
+- lopputuloksen kannalta on samantekevää, onko kyseessä eksplisiittinen vai virtuaalinen attribuutti
+
+===
+Tietokannan suunnittelusta: normalisointi
+- tavoitteet:
+-- toiston eliminointi
+-- nolla-arvojen minimointi
+-- syöttöön, muokkaamiseen ja poistamiseen liittyvien poikkeamien eliminointi
+
+Normalisointiprosessi:
+1. etsitään tai luodaan avainsarakkeet => 1. normaalimuoto (1NF)
+2. tutkitaan riippuvuuksia avainsarakkeista ja tarvittaessa erotetaan sarakkeita erillisiksi tauluiksi => 2. normaalimuoto (2NF)
+3. poistetaan vaihtoehtoiset (siirrettävät) riippuvuudet, so. jos sarake voidaan tunnistaa avainsarakkeiden lisäksi jonkin toisen, ei-avainsarakkeen tietojen avulla  => 3. normaalimuoto (3NF)
+
+Vahvistetaan, että 3NF toimii tekemällä kysely, jossa on 1NF:n rakenne:
+
+SELECT
+ Patient.name,
+ Patient.address,
+ Surgeon.name,
+ Surgery.operation,
+ Surgery.date,
+ Drug.name,
+ Drug.Side_effect
+FROM
+ Patient,
+ Surgeon,
+ Drug,
+ Surgery
+WHERE
+ Patient.ID = Surgery.patient AND
+ Surgeon.ID = Surgery.surgeon AND
+ Drug.name = Surgery.drug;
+
+
+Tiedonhallinta 5 06.11.2018
+
+1. Aggregointi l. koontifunktioiden käyttö
+
+- Lasketaan kontaktitaulussa olevien rivien lukumäärä
+
+SELECT
+ COUNT(*)
+FROM
+ Kontakti;
+
+-- Monikoiden lukumäärää haettaessa kannattaa varmistaa, että jokaisessa laskennassa olevan sarakkeen kentässä on joku arvo, vrt. esim.:
+
+SELECT
+ COUNT(Osoite)
+FROM
+ Kontakti;
+
+2. Luo omaan MariaDB-tietokantaasi Company DB kopioimalla ja sijoittamalla luonti- ja syöttökäskyt OMA:sta löytyvästä tekstitiedostosta
+
+===
+
+Tehtävä 1: hae työntekijät osastoittain 
+
+Versio 1:
+SELECT
+ d.dname Osasto,
+ e.lname Työntekijä
+FROM
+ employee e,
+ department d
+WHERE
+ e.deptno = d.dno;
+
+Versio 2:
+SELECT
+ d.dname Osasto,
+ e.lname Työntekijä
+FROM
+ employee e INNER JOIN
+  department d ON e.deptno = d.dno;
+
+-  Siistitään kysely lajitteluilla ensin osaston nimen ja toiseksi työntekijän sukunimen mukaan:
+
+SELECT
+ d.dname Osasto,
+ e.lname Työntekijä
+FROM
+ employee e INNER JOIN
+  department d ON e.deptno = d.dno
+ORDER BY
+ d.dname,
+ e.lname;
+
+Tehtävä 2: laske työntekijöiden lukumäärä osastoittain (HUOM! Group by:n käyttö koskien koontifunktion ulkopuolelle jääviä sarakkeita)
+
+SELECT
+ d.dname Osasto,
+ COUNT(e.ssn) 'Työntekijöiden lkm'
+FROM
+ employee e INNER JOIN
+  department d ON e.deptno = d.dno
+GROUP BY
+ d.dname
+ORDER BY
+ d.dname DESC; 
+
+Tiedonhallinta 6 07.11.2018
+
+===
+
+Toistaiseksi käytämme vielä Metropolian MariaDB-palvelua osoitteessa: https://users.metropolia.fi/phpMyAdmin
+
+Jos salasana unohtuu, niin käy luomassa/muuttamassa se osoitteessa: https://amme.metropolia.fi/mysql (HUOM! älä unohda tuota mysql-osuutta). Älä anna tietokannallesi samaa salasanaa mitä käytät kirjautuessasi Metropolian palveluihin.
+
+===
+
+
+Temporaalitiedonhallinta
+
+1. Voimassaoloaika: valid time => Valid Start Time (VST) ja Valid End Time (VET)
+
+- Esimerkki:
+CREATE TABLE VT_Kontakti(
+ id int not null,
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite CHAR(100),
+ vst date not null,
+ vet date,
+ primary key(id, vst)
+);
+
+-- Uuden tiedon syöttö
+
+INSERT INTO VT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Umpikuja 1',
+ '2018-11-08',
+ NULL
+);
+
+-- Tiedon päivittäminen. Kaksivaiheinen prosessi, jossa ensin luodaan uusi tietue uusilla arvoilla ja voimassaoloajalla ja toiseksi päivitetään vanhan tiedon päättymisaika
+
+INSERT INTO VT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Kiertotie 2',
+ '2018-11-10',
+ NULL
+);
+
+UPDATE VT_Kontakti
+ SET VET = '2018-11-09'
+  WHERE id = 1 AND vst = '2018-11-08';
+
+-- Rivillä olevan tiedon poistaminen: EI käytetä DELETE-komentoa, vaan annetaan nimenomainen arvo sarakkeeseen VET. Se ilmaisee ajankohdan, jonka jälkeen rivillä oleva tieto ei ole enää voimassa.
+
+===
+
+Temporaalikysely 1: mitkä tiedot ovat voimassa 09.11.2018?
+
+INSERT INTO VT_Kontakti
+VALUES(
+ 2,
+ 'Maija',
+ 'Tatti',
+ '648273647',
+ 'Mannerheimintie 10',
+ '2018-11-01',
+ NULL
+);
+
+SELECT
+ *
+FROM
+ VT_Kontakti
+WHERE
+ vst <= '2018-11-09' AND
+ (vet >= '2018-11-09' OR ISNULL(vet)); -- vaihtoehtoisesti vet IS NULL
+
+===
+
+Lisätään tauluun seuraava rivi:
+
+INSERT INTO VT_Kontakti
+VALUES(
+ 3,
+ 'Urho',
+ 'Tatti',
+ '648273647',
+ 'Umpikuja 1',
+ '1999-11-01',
+ NULL
+);
+
+Temporaalikysely 2: ketkä ja kauanko ovat asuneet Umpikuja 1:ssä?
+
+SELECT
+ sukunimi,
+ etunimi,
+    timestampdiff(YEAR, vst, curdate()) AS vuotta,
+    MOD(timestampdiff(MONTH, vst, curdate()), 12) AS kuukautta,
+    MOD(timestampdiff(DAY, vst, curdate()), 365) AS päivää
+FROM
+ VT_Kontakti
+WHERE 
+ osoite = 'Umpikuja 1' AND 
+ vst < curdate();
+
+
+Tiedonhallinta 7 12.11.2018
+
+Temporaalitiedonhallinta: tapahtuma-aika
+
+HUOM!
+
+create table tt_demo(
+ tst timestamp,
+ tet timestamp
+);
+
+insert into tt_demo
+values(
+ null,
+ null
+);
+
+
+1. Toteuta tapahtuma-aikasovellus taulusta:
+
+CREATE TABLE TT_Kontakti(
+ id int not null,
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite CHAR(100),
+ tst datetime not null,
+ tet datetime,
+ primary key(id, tst)
+ );
+
+2. Syötä tauluun tapahtuma-ajoilla varustetut rivit
+
+INSERT INTO TT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Umpikuja 1',
+ '2018-11-02 12:00:05',
+ NULL
+);
+
+3. Päivitä tietueen id=1 tiedot:
+-- ensin syötetään uusi rivi korjatuilla tiedoilla:
+
+INSERT INTO TT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Kiertotie 2',
+ '2018-11-12 13:00:05',
+ NULL
+);
+
+-- sitten päivitetään edellinen tapahtuma päättyneeksi:
+UPDATE TT_Kontakti
+ SET tet = '2018-11-12 13:00:05'
+  WHERE id = 1 AND tst = '2018-11-02 12:00:05';
+
+
+4. Mitkä faktat olivat voimassa 5.11.2018?
+
+SELECT
+ *
+FROM
+ TT_Kontakti
+WHERE
+ (tet >= '2018-11-05' OR tet is null) AND
+  tst <= '2018-11-05';
+
+===
+Bi-temporaalisessa rakenteessa on sekä voimassaolo- että tapahtuma-ajat tallennettuina.
+
+5. Tee Kontakti-taulusta bi-temporaalinen versio BT_Kontakti
+
+CREATE TABLE BT_Kontakti(
+ id int not null,
+ etunimi CHAR(15),
+ sukunimi CHAR(20),
+ puhelin CHAR(15),
+ osoite CHAR(100),
+ vst DATE not null,
+ vet DATE,
+ tst DATETIME not null,
+ tet DATETIME,
+ PRIMARY KEY(id, vst, tst)
+);
+
+6. Syötetään BT_Kontaktiin yksi tietue:
+
+INSERT INTO BT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Umpikuja 1',
+ '2018-11-02',
+ NULL,
+ '2018-11-04 12:00:05',
+ NULL
+);
+
+-- Bi-temporaalirakenteessa päivittäminen:
+1. Syötetään rivi, jossa ovat uudet arvot sekä vst:lle että tst:lle; vet ja tet saavat arvoksensa NULL:in
+2. Syötetään rivi, jossa nykyisen tiedon voimassaolo päättyy (vet saa päättymisaikaa ilmaisevan arvon). tst saa saman arvon, kuin edellisen rivin tst ja tet arvon NULL
+3. Päivitetään alkuperäinen tieto, jossa tet saa saman arvon, kuin edellisen rivin tst
+
+
+INSERT INTO BT_Kontakti
+VALUES(
+  1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Kiertotie 2',
+ '2018-11-12',
+ NULL,
+ '2018-11-12 14:00:00',
+ NULL
+);
+
+INSERT INTO BT_Kontakti
+VALUES(
+ 1,
+ 'Matti',
+ 'Tatti',
+ '927398u2',
+ 'Umpikuja 1',
+ '2018-11-02',
+ '2018-11-11',
+ '2018-11-12 14:00:00',
+ NULL
+);
+
+UPDATE BT_Kontakti
+ SET tet = '2018-11-12 14:00:00'
+  WHERE
+   id = 1 AND
+   vst = '2018-11-02' AND
+   tst = '2018-11-04 12:00:05';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
