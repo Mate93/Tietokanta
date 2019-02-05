@@ -1,0 +1,33 @@
+
+    <style>
+        body {
+            background: url(beaumont-home-background.jpg) no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            position: relative;
+             margin: 0%;
+            height: 100vh;
+        }
+        div.kuva1 {
+            content:url(Hummingbird-Free-Download-PNG.png);
+            background-repeat: no-repeat;
+            background-size: 200px 100px;
+            padding: 20px;
+        }
+        div.kuva2 {
+            content:url(pink-light-transparent-png-27.png);
+            position: absolute;
+            background-size: auto;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+
+        }
+
+
+    </style>
+    
+    <div class="kuva1"></div>
+<div class="kuva2"></div>
